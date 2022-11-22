@@ -1,0 +1,16 @@
+{
+  "name": "@stagetimer/license",
+  "version": "0.0.0",
+  "description": "License Library for stagetimer.io",
+  "main": "index.js",
+  "author": "Lukas Hermann <hey@lukashermann.dev>",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lhermann/stagetimer-license.git"
+  },
+  "dependencies": {
+    "@stagetimer/shared": "github:lhermann/stagetimer-shared",
+    "jsonwebtoken": "^8.5.1"
+  }
+}
