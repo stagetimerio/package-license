@@ -9,8 +9,16 @@
     "type": "git",
     "url": "git+https://github.com/lhermann/stagetimer-license.git"
   },
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "@stagetimer/shared": "github:lhermann/stagetimer-shared",
     "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
+    "jest": "^29.3.1"
   }
 }
