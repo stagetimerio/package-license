@@ -1,5 +1,11 @@
 # Stagetimer License Package
 
+## Install
+
+```sh
+npm i lhermann/stagetimer-license
+```
+
 ## Create key pair
 
 See: https://github.com/auth0/node-jsonwebtoken/issues/794
