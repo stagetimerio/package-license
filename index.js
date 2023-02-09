@@ -1,7 +1,13 @@
 const jwt = require('jsonwebtoken')
 const { subscriptionHandler } = require('@stagetimer/shared')
 
-const schema = {
+const encodedSchema = {
+  planId: { type: Number, default: 0 },
+  email: { type: String, default: null },
+  uid: { type: String, default: null },
+}
+
+const parsedSchema = {
   planId: { type: Number, default: 0 },
   email: { type: String, default: null },
   uid: { type: String, default: null },
@@ -11,7 +17,11 @@ const schema = {
 }
 
 function signToken (payload, privateKey, expiresIn = '1 month') {
-  return jwt.sign(applyTokenSchema(payload), _parseKey(privateKey), { algorithm: 'RS256', expiresIn })
+  return jwt.sign(
+    applyTokenSchema(payload, encodedSchema),
+    _parseKey(privateKey),
+    { algorithm: 'RS256', expiresIn },
+  )
 }
 
 function validateToken (tokenString, publicKey) {
@@ -35,7 +45,7 @@ function validateToken (tokenString, publicKey) {
   }
 }
 
-function applyTokenSchema (payload = {}) {
+function applyTokenSchema (payload = {}, schema = parsedSchema) {
   const result = {}
   for (const key in schema) {
     result[key] = payload[key] || schema[key].default
