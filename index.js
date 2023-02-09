@@ -5,36 +5,37 @@ const schema = {
   planId: { type: Number, default: 0 },
   email: { type: String, default: null },
   uid: { type: String, default: null },
+  exp: { type: String, default: null },
+  token: { type: String, default: null },
+  valid: { type: String, default: false },
 }
 
 function signToken (payload, privateKey, expiresIn = '1 month') {
-  return jwt.sign(_applySchema(payload), _parseKey(privateKey), { algorithm: 'RS256', expiresIn })
+  return jwt.sign(applyTokenSchema(payload), _parseKey(privateKey), { algorithm: 'RS256', expiresIn })
 }
 
 function validateToken (tokenString, publicKey) {
-  let decoded, valid
+  let decoded
 
   try {
     decoded = jwt.verify(tokenString, _parseKey(publicKey), { algorithms: ['RS256'] })
     decoded.exp = new Date(decoded.exp * 1000)
-    valid = true
+    decoded.valid = true
   } catch (err) {
     if (!err.message.includes('jwt must be provided')) console.error('[@stagetimer/license]', err.message)
     decoded = { exp: err.expiredAt || null }
-    valid = false
+    decoded.valid = false
   }
 
   return {
-    ..._applySchema(decoded),
-    exp: decoded.exp,
-    plan: subscriptionHandler.getPlanById(decoded.planId),
+    ...applyTokenSchema(decoded),
     token: tokenString,
-    valid,
-    active: new Date() < decoded.exp,
+    plan: subscriptionHandler.getPlanById(decoded.planId), // DEPRECATE ME
+    active: new Date() < decoded.exp, // DEPRECATE ME
   }
 }
 
-function _applySchema (payload = {}) {
+function applyTokenSchema (payload = {}) {
   const result = {}
   for (const key in schema) {
     result[key] = payload[key] || schema[key].default
@@ -64,13 +65,13 @@ function _parseKey (key) {
 
 exports.signToken = signToken
 exports.validateToken = validateToken
-exports._applySchema = _applySchema
+exports.applyTokenSchema = applyTokenSchema
 exports._parseKey = _parseKey
 
 module.exports = {
   signToken,
   validateToken,
-  _applySchema,
+  applyTokenSchema,
   _parseKey,
 }
 
