@@ -1,6 +1,6 @@
 {
   "name": "@stagetimer/license",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "License Library for stagetimer.io",
   "main": "index.js",
   "author": "Lukas Hermann <hey@lukashermann.dev>",
