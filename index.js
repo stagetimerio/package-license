@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const { subscriptionHandler } = require('@stagetimer/shared')
 
 const encodedSchema = {
   planId: { type: Number, default: 0 },
@@ -40,8 +39,6 @@ function validateToken (tokenString, publicKey) {
   return {
     ...applyTokenSchema(decoded),
     token: tokenString,
-    plan: subscriptionHandler.getPlanById(decoded.planId), // DEPRECATE ME
-    active: new Date() < decoded.exp, // DEPRECATE ME
   }
 }
 
