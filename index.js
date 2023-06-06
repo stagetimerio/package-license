@@ -64,7 +64,9 @@ function _parseKey (key) {
   const coreStr = key
     .replace(`-----BEGIN ${keyType}-----`, '')
     .replace(`-----END ${keyType}-----`, '')
-    .replace(/\\n|\s/g, '\n').trim()
+    .replace(/\\n|\s/g, '\n')
+    .replace(/\n\n/g, '\n')
+    .trim()
 
   const formattedKey = `-----BEGIN ${keyType}-----\n` + coreStr + `\n-----END ${keyType}-----`
   return formattedKey
