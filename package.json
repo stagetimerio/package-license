@@ -4,7 +4,6 @@
   "description": "License Library for stagetimer.io",
   "main": "index.js",
   "author": "Lukas Hermann <hey@lukashermann.dev>",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lhermann/stagetimer-license.git"
