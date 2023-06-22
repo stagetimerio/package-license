@@ -9,7 +9,8 @@
     "url": "git+https://github.com/stagetimerio/package-license.git"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "jest --ci"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.0"
