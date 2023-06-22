@@ -3,7 +3,7 @@
 ## Install
 
 ```sh
-npm i lhermann/stagetimer-license
+npm i @stagetimerio/license
 ```
 
 ## Create key pair
