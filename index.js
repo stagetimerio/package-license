@@ -31,7 +31,7 @@ function validateToken (tokenString, publicKey) {
     decoded.exp = new Date(decoded.exp * 1000)
     decoded.valid = true
   } catch (err) {
-    if (!err.message.includes('jwt must be provided')) console.error('[@stagetimer/license]', err.message)
+    if (!err.message.includes('jwt must be provided')) console.error(`[${process.env.npm_package_name}]`, err.message)
     decoded = { exp: err.expiredAt || null }
     decoded.valid = false
   }
