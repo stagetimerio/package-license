@@ -6,7 +6,7 @@
   "author": "Lukas Hermann <hey@lukashermann.dev>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lhermann/stagetimer-license.git"
+    "url": "git+https://github.com/stagetimerio/package-license.git"
   },
   "scripts": {
     "test": "jest"
