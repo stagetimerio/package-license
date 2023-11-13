@@ -19,5 +19,9 @@
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
     "jest": "^29.3.1"
-  }
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ]
 }
