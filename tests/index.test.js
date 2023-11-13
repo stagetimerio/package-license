@@ -52,17 +52,25 @@ vceYTMfN
 })
 
 describe('signToken', () => {
-  const activeUntil = new Date(new Date().setMonth(new Date().getMonth() + -1))
-  const samplePayload = {
-    n: 'Pro',
-    img: 'ic-pro-plan.png',
-    lim: { s: 4, l: 2, r: -1, d: 20, t: 50, m: 50 },
-    prm: ['LICENSED', 'API_ACCESS'],
-    t: 'MYNK9OdTESfbLPaj8ioA95cWFAt1',
-  }
+  test('sign with future date', () => {
+    const future = new Date(new Date().setMonth(new Date().getMonth() + 1))
+    const token = signToken({ foo: 'bar' }, JWT_PRIVATE_KEY, future)
+    expect(typeof token).to.equal('string')
+  })
 
-  test('sign payload', () => {
-    const token = signToken(samplePayload, JWT_PRIVATE_KEY, activeUntil)
+  test('sign with past date', () => {
+    const past = new Date(new Date().setMonth(new Date().getMonth() - 1))
+    const token = signToken({ foo: 'bar' }, JWT_PRIVATE_KEY, past)
+    expect(typeof token).to.equal('string')
+  })
+
+  test('sign with null date', () => {
+    const token = signToken({ foo: 'bar' }, JWT_PRIVATE_KEY, null)
+    expect(typeof token).to.equal('string')
+  })
+
+  test('sign without date', () => {
+    const token = signToken({ foo: 'bar' }, JWT_PRIVATE_KEY)
     expect(typeof token).to.equal('string')
   })
 })
@@ -86,6 +94,15 @@ describe('parseToken', () => {
     expect(parsedToken.foo).to.equal('bar')
     expect(parsedToken.exp.getTime()).to.equal(past.setMilliseconds(0))
     expect(parsedToken.isValid).to.equal(false)
+  })
+
+  test('parse token without expiration date', () => {
+    const token = signToken({ foo: 'bar' }, JWT_PRIVATE_KEY, null)
+    const parsedToken = parseToken(token, JWT_PUBLIC_KEY)
+    expect(typeof parsedToken).to.equal('object')
+    expect(parsedToken.foo).to.equal('bar')
+    expect(parsedToken.exp).to.equal(null)
+    expect(parsedToken.isValid).to.equal(true)
   })
 
   test('parse token with invalid signature', () => {

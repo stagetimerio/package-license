@@ -6,8 +6,8 @@ const jwt = require('jsonwebtoken')
 
 /**
  * type ParsedToken = TokenPayload & {
- *   iat: Date
- *   exp: Date
+ *   iat: Date | null
+ *   exp: Date | null
  *   isValid: boolean
  * }
  */
@@ -17,16 +17,14 @@ const jwt = require('jsonwebtoken')
  *
  * @param {TokenPayload} payload - The payload to be signed.
  * @param {string} privateKey - The private key used for signing the token.
- * @param {string|Date} expiresIn - The duration for which the token is valid (default is '1 month').
+ * @param {string|Date|null} expiresIn - The duration for which the token is valid (default is '1 month').
  * @return {string} - The signed JWT.
  */
-function signToken (payload, privateKey, expiresIn = '1m') {
-  if (expiresIn instanceof Date ) expiresIn = Math.floor((expiresIn.getTime() - Date.now()) / 1000)
-  return jwt.sign(
-    payload,
-    _parseKey(privateKey),
-    { algorithm: 'RS256', expiresIn },
-  )
+function signToken (payload, privateKey, expiresIn = null) {
+  const options = { algorithm: 'RS256' }
+  if (expiresIn instanceof Date ) options.expiresIn = Math.floor((expiresIn.getTime() - Date.now()) / 1000)
+  if (typeof expiresIn === 'string') options.expiresIn = expiresIn
+  return jwt.sign(payload, _parseKey(privateKey), options)
 }
 
 /**
@@ -37,9 +35,9 @@ function signToken (payload, privateKey, expiresIn = '1m') {
  */
 function parseToken (tokenString, publicKey) {
   const parsed = jwt.verify(tokenString, _parseKey(publicKey), { algorithms: ['RS256'], ignoreExpiration: true })
-  parsed.exp = new Date(parsed.exp * 1000)
-  parsed.iat = new Date(parsed.iat * 1000)
-  parsed.isValid = new Date() <= parsed.exp
+  parsed.exp = parsed.exp ? new Date(parsed.exp * 1000) : null
+  parsed.iat = parsed.iat ? new Date(parsed.iat * 1000) : null
+  parsed.isValid = parsed.exp === null || new Date() <= parsed.exp
   return parsed
 }
 
