@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { _parseKey, signToken, parseToken } = require('../index.js')
+const { _parseKey, signToken, parseToken, isTokenExpDateMatching } = require('../index.js')
 const { readFileSync } = require('fs')
 
 const JWT_PRIVATE_KEY = readFileSync(__dirname + '/jwt-fixture-2048-RS256.key', { encoding: 'utf8' })
@@ -109,5 +109,57 @@ describe('parseToken', () => {
     const token = signToken({ foo: 'bar' }, JWT_PRIVATE_KEY)
     const fn = () => parseToken(token + 'XXX', JWT_PUBLIC_KEY)
     expect(fn).to.throw()
+  })
+})
+
+
+describe('isTokenExpDateMatching', () => {
+  it('should return false if parsedToken.exp is null', () => {
+    const parsedToken = { exp: null }
+    const date = new Date('2024-11-28T20:36:29.000Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.false
+  })
+
+  it('should return false if dates are outside of tolerance', () => {
+    const parsedToken = { exp: new Date('2024-11-28T20:36:29.000Z') }
+    const date = new Date('2024-11-28T20:36:33.000Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.false
+  })
+
+  it('should return true if dates are exactly the same', () => {
+    const parsedToken = { exp: new Date('2024-11-28T20:36:29.000Z') }
+    const date = new Date('2024-11-28T20:36:29.000Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.true
+  })
+
+  it('should return true if parsedToken.exp is before the date inside tolerance', () => {
+    const parsedToken = { exp: new Date('2024-11-28T20:36:29.000Z') }
+    const date = new Date('2024-11-28T20:36:30.544Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.true
+  })
+
+  it('should return true if parsedToken.exp is after the date inside tolerance', () => {
+    const parsedToken = { exp: new Date('2024-11-28T20:36:29.000Z') }
+    const date = new Date('2024-11-28T20:36:27.544Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.true
+  })
+
+  it('should return false if parsedToken.exp is before the date outside tolerance', () => {
+    const parsedToken = { exp: new Date('2024-11-28T20:36:29.000Z') }
+    const date = new Date('2024-11-28T20:36:32.500Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.false
+  })
+
+  it('should return false if parsedToken.exp is after the date outside tolerance', () => {
+    const parsedToken = { exp: new Date('2024-11-28T20:36:29.000Z') }
+    const date = new Date('2024-11-28T20:36:25.500Z')
+    const result = isTokenExpDateMatching(parsedToken, date)
+    expect(result).to.be.false
   })
 })

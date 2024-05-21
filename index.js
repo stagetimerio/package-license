@@ -57,6 +57,27 @@ function isValidToken (tokenString, publicKey) {
 }
 
 /**
+ * Check if the parsed token's expiration date is identical to the given date within a tolerance
+ *
+ * Note: The tolerance is 2000 (2s) because JWT timestamps are in seconds, not milliseconds, and still seem to apply
+ *       some rounding on top of that.
+ *
+ * @param  {ParsedToken} parsedToken
+ * @param  {Date} date
+ * @return {boolean}
+ */
+function isTokenExpDateMatching (parsedToken, date) {
+  const tolerance = 2000
+
+  if (!parsedToken.exp) return false
+
+  const tokenExpTime = parsedToken.exp.getTime()
+  const dateToCompareTime = new Date(date).getTime()
+
+  return Math.abs(tokenExpTime - dateToCompareTime) <= tolerance
+}
+
+/**
  * Validates a JSON Web Token (JWT) using the provided public key.
  *
  * @param {string} tokenString - The JWT string to be validated.
@@ -108,6 +129,7 @@ module.exports = {
   signToken,
   parseToken,
   isValidToken,
+  isTokenExpDateMatching,
   validateToken: validateToken_DEPRECATED,
   _parseKey,
 }
