@@ -19,28 +19,33 @@ const jwt = require('jsonwebtoken')
  */
 
 /**
- * Signs a payload with the provided private key to create a JSON Web Token (JWT).
+ * Signs a payload with the provided key to create a JSON Web Token (JWT).
  *
  * @param {TokenPayload} payload - The payload to be signed.
- * @param {string} privateKey - The private key used for signing the token.
- * @param {string|Date|null} expiresIn - The duration for which the token is valid (default is '1 month').
+ * @param {string} key - The private key (RS256) or secret (HS256) used for signing.
+ * @param {string|Date|null} expiresIn - The duration for which the token is valid (default is null).
+ * @param {string} algorithm - The algorithm to use ('RS256' or 'HS256', default is 'RS256').
  * @return {string} - The signed JWT.
  */
-function signToken (payload, privateKey, expiresIn = null) {
-  const options = { algorithm: 'RS256' }
+function signToken (payload, key, expiresIn = null, algorithm = 'RS256') {
+  const options = { algorithm }
   if (expiresIn instanceof Date ) options.expiresIn = Math.floor((expiresIn.getTime() - Date.now()) / 1000)
   if (typeof expiresIn === 'string') options.expiresIn = expiresIn
-  return jwt.sign(payload, _parseKey(privateKey), options)
+
+  const sanitizedKey = algorithm === 'RS256' ? _parseRSAKey(key) : key
+  return jwt.sign(payload, sanitizedKey, options)
 }
 
 /**
  * Parse JWT Token
  * @param  {string} tokenString
- * @param  {string} publicKey
+ * @param  {string} key - Public key (RS256) or secret (HS256)
+ * @param  {string} algorithm - The algorithm used ('RS256' or 'HS256', default is 'RS256')
  * @return {ParsedToken}
  */
-function parseToken (tokenString, publicKey) {
-  const parsed = jwt.verify(tokenString, _parseKey(publicKey), { algorithms: ['RS256'], ignoreExpiration: true })
+function parseToken (tokenString, key, algorithm = 'RS256') {
+  const sanitizedKey = algorithm === 'RS256' ? _parseRSAKey(key) : key
+  const parsed = jwt.verify(tokenString, sanitizedKey, { algorithms: [algorithm], ignoreExpiration: true })
   parsed.exp = parsed.exp ? new Date(parsed.exp * 1000) : null
   parsed.iat = parsed.iat ? new Date(parsed.iat * 1000) : null
   parsed.isValid = parsed.exp === null || new Date() <= parsed.exp
@@ -48,14 +53,16 @@ function parseToken (tokenString, publicKey) {
 }
 
 /**
- * Checks if a JWT token is valid (signature validates and is note expired)
+ * Checks if a JWT token is valid (signature validates and is not expired)
  * @param  {string} tokenString
- * @param  {string} publicKey
+ * @param  {string} key - Public key (RS256) or secret (HS256)
+ * @param  {string} algorithm - The algorithm used ('RS256' or 'HS256', default is 'RS256')
  * @return {boolean}
  */
-function isValidToken (tokenString, publicKey) {
+function isValidToken (tokenString, key, algorithm = 'RS256') {
   try {
-    jwt.verify(tokenString, _parseKey(publicKey), { algorithms: ['RS256'] })
+    const sanitizedKey = algorithm === 'RS256' ? _parseRSAKey(key) : key
+    jwt.verify(tokenString, sanitizedKey, { algorithms: [algorithm] })
     return true
   } catch (err) {
     return false
@@ -88,7 +95,7 @@ function isTokenExpDateMatching (parsedToken, date) {
  * @param  {String} key [private or public key string]
  * @return {String}     [properly formatted key]
  */
-function _parseKey (key) {
+function _parseRSAKey (key) {
   let keyType = null
   if (key.startsWith('-----BEGIN PUBLIC KEY-----')) keyType = 'PUBLIC KEY'
   if (key.startsWith('-----BEGIN RSA PRIVATE KEY-----')) keyType = 'RSA PRIVATE KEY'
@@ -110,6 +117,6 @@ module.exports = {
   parseToken,
   isValidToken,
   isTokenExpDateMatching,
-  _parseKey,
+  _parseRSAKey,
 }
 

@@ -1,11 +1,11 @@
 const { expect } = require('chai')
-const { _parseKey, signToken, parseToken, isTokenExpDateMatching } = require('../index.js')
+const { _parseRSAKey, signToken, parseToken, isTokenExpDateMatching } = require('../index.js')
 const { readFileSync } = require('fs')
 
 const JWT_PRIVATE_KEY = readFileSync(__dirname + '/jwt-fixture-2048-RS256.key', { encoding: 'utf8' })
 const JWT_PUBLIC_KEY = readFileSync(__dirname + '/jwt-fixture-2048-RS256.key.pub', { encoding: 'utf8' })
 
-describe('_parseKey', () => {
+describe('_parseRSAKey', () => {
   const mockPublicKey = `-----BEGIN PUBLIC KEY-----
 MIIBojANBgkqh
 a5LPDfJneQHEi
@@ -19,35 +19,35 @@ vceYTMfN
 
   test('public key string with spaces', () => {
     const key = '-----BEGIN PUBLIC KEY----- MIIBojANBgkqh a5LPDfJneQHEi vceYTMfN -----END PUBLIC KEY-----'
-    expect(_parseKey(key)).to.equal(mockPublicKey)
+    expect(_parseRSAKey(key)).to.equal(mockPublicKey)
   })
 
   test('public key string with newlines', () => {
     const key = '-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqh\na5LPDfJneQHEi\nvceYTMfN\n-----END PUBLIC KEY-----'
-    expect(_parseKey(key)).to.equal(mockPublicKey)
+    expect(_parseRSAKey(key)).to.equal(mockPublicKey)
   })
 
   test('public key string with escaped newlines', () => {
     const key = '-----BEGIN PUBLIC KEY-----\\nMIIBojANBgkqh\\na5LPDfJneQHEi\\nvceYTMfN\\n-----END PUBLIC KEY-----'
-    expect(_parseKey(key)).to.equal(mockPublicKey)
+    expect(_parseRSAKey(key)).to.equal(mockPublicKey)
   })
 
   test('public key string correctly formatted', () => {
-    expect(_parseKey(mockPublicKey)).to.equal(mockPublicKey)
+    expect(_parseRSAKey(mockPublicKey)).to.equal(mockPublicKey)
   })
 
   test('private key string with spaces', () => {
     const key = '-----BEGIN RSA PRIVATE KEY----- MIIBojANBgkqh a5LPDfJneQHEi vceYTMfN -----END RSA PRIVATE KEY-----'
-    expect(_parseKey(key)).to.equal(mockPrivateKey)
+    expect(_parseRSAKey(key)).to.equal(mockPrivateKey)
   })
 
   test('private key string with newlines', () => {
     const key = '-----BEGIN RSA PRIVATE KEY-----\nMIIBojANBgkqh\na5LPDfJneQHEi\nvceYTMfN\n-----END RSA PRIVATE KEY-----'
-    expect(_parseKey(key)).to.equal(mockPrivateKey)
+    expect(_parseRSAKey(key)).to.equal(mockPrivateKey)
   })
 
   test('private key string correctly formatted', () => {
-    expect(_parseKey(mockPrivateKey)).to.equal(mockPrivateKey)
+    expect(_parseRSAKey(mockPrivateKey)).to.equal(mockPrivateKey)
   })
 })
 
