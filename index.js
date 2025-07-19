@@ -84,32 +84,6 @@ function isTokenExpDateMatching (parsedToken, date) {
 }
 
 /**
- * Validates a JSON Web Token (JWT) using the provided public key.
- *
- * @param {string} tokenString - The JWT string to be validated.
- * @param {string} publicKey - The public key used to verify the token.
- * @return {any} - An object representing the decoded token, including a 'valid' flag indicating the token's validity.
- */
-function validateToken_DEPRECATED (tokenString, publicKey) {
-  let decoded
-
-  try {
-    decoded = jwt.verify(tokenString, _parseKey(publicKey), { algorithms: ['RS256'] })
-    decoded.exp = new Date(decoded.exp * 1000)
-    decoded.valid = true
-  } catch (err) {
-    if (!err.message.includes('jwt must be provided')) console.error(`[${process.env.npm_package_name}]`, err.message)
-    decoded = { exp: err.expiredAt || null }
-    decoded.valid = false
-  }
-
-  return {
-    ...decoded,
-    token: tokenString,
-  }
-}
-
-/**
  * Parse a private or public key, making sure that \n or spaces are turned into newlines
  * @param  {String} key [private or public key string]
  * @return {String}     [properly formatted key]
@@ -136,7 +110,6 @@ module.exports = {
   parseToken,
   isValidToken,
   isTokenExpDateMatching,
-  validateToken: validateToken_DEPRECATED,
   _parseKey,
 }
 
