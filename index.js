@@ -1,3 +1,9 @@
+/*!
+ * @stagetimerio/license
+ * © Lukas Hermann <hey@lukashermann.dev>
+ * All rights reserved.
+ */
+
 const jwt = require('jsonwebtoken')
 
 /**
