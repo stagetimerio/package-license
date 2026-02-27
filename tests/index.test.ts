@@ -1,11 +1,12 @@
-const { expect } = require('chai')
-const { _parseRSAKey, signToken, parseToken, isTokenExpDateMatching } = require('../index.js')
-const { readFileSync } = require('fs')
+import { expect } from 'chai'
+import { readFileSync } from 'fs'
+import { signToken, parseToken, isTokenExpDateMatching } from '../src/index'
+import parseRSAKey from '../src/parseRSAKey'
 
-const JWT_PRIVATE_KEY = readFileSync(__dirname + '/jwt-fixture-2048-RS256.key', { encoding: 'utf8' })
-const JWT_PUBLIC_KEY = readFileSync(__dirname + '/jwt-fixture-2048-RS256.key.pub', { encoding: 'utf8' })
+const JWT_PRIVATE_KEY = readFileSync(new URL('./jwt-fixture-2048-RS256.key', import.meta.url), { encoding: 'utf8' })
+const JWT_PUBLIC_KEY = readFileSync(new URL('./jwt-fixture-2048-RS256.key.pub', import.meta.url), { encoding: 'utf8' })
 
-describe('_parseRSAKey', () => {
+describe('parseRSAKey', () => {
   const mockPublicKey = `-----BEGIN PUBLIC KEY-----
 MIIBojANBgkqh
 a5LPDfJneQHEi
@@ -19,35 +20,35 @@ vceYTMfN
 
   test('public key string with spaces', () => {
     const key = '-----BEGIN PUBLIC KEY----- MIIBojANBgkqh a5LPDfJneQHEi vceYTMfN -----END PUBLIC KEY-----'
-    expect(_parseRSAKey(key)).to.equal(mockPublicKey)
+    expect(parseRSAKey(key)).to.equal(mockPublicKey)
   })
 
   test('public key string with newlines', () => {
     const key = '-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqh\na5LPDfJneQHEi\nvceYTMfN\n-----END PUBLIC KEY-----'
-    expect(_parseRSAKey(key)).to.equal(mockPublicKey)
+    expect(parseRSAKey(key)).to.equal(mockPublicKey)
   })
 
   test('public key string with escaped newlines', () => {
     const key = '-----BEGIN PUBLIC KEY-----\\nMIIBojANBgkqh\\na5LPDfJneQHEi\\nvceYTMfN\\n-----END PUBLIC KEY-----'
-    expect(_parseRSAKey(key)).to.equal(mockPublicKey)
+    expect(parseRSAKey(key)).to.equal(mockPublicKey)
   })
 
   test('public key string correctly formatted', () => {
-    expect(_parseRSAKey(mockPublicKey)).to.equal(mockPublicKey)
+    expect(parseRSAKey(mockPublicKey)).to.equal(mockPublicKey)
   })
 
   test('private key string with spaces', () => {
     const key = '-----BEGIN RSA PRIVATE KEY----- MIIBojANBgkqh a5LPDfJneQHEi vceYTMfN -----END RSA PRIVATE KEY-----'
-    expect(_parseRSAKey(key)).to.equal(mockPrivateKey)
+    expect(parseRSAKey(key)).to.equal(mockPrivateKey)
   })
 
   test('private key string with newlines', () => {
     const key = '-----BEGIN RSA PRIVATE KEY-----\nMIIBojANBgkqh\na5LPDfJneQHEi\nvceYTMfN\n-----END RSA PRIVATE KEY-----'
-    expect(_parseRSAKey(key)).to.equal(mockPrivateKey)
+    expect(parseRSAKey(key)).to.equal(mockPrivateKey)
   })
 
   test('private key string correctly formatted', () => {
-    expect(_parseRSAKey(mockPrivateKey)).to.equal(mockPrivateKey)
+    expect(parseRSAKey(mockPrivateKey)).to.equal(mockPrivateKey)
   })
 })
 
@@ -82,7 +83,7 @@ describe('parseToken', () => {
     const parsedToken = parseToken(token, JWT_PUBLIC_KEY)
     expect(typeof parsedToken).to.equal('object')
     expect(parsedToken.foo).to.equal('bar')
-    expect(parsedToken.exp.getTime()).to.equal(future.setMilliseconds(0))
+    expect((parsedToken.exp as Date).getTime()).to.equal(future.setMilliseconds(0))
     expect(parsedToken.isValid).to.equal(true)
   })
 
@@ -92,7 +93,7 @@ describe('parseToken', () => {
     const parsedToken = parseToken(token, JWT_PUBLIC_KEY)
     expect(typeof parsedToken).to.equal('object')
     expect(parsedToken.foo).to.equal('bar')
-    expect(parsedToken.exp.getTime()).to.equal(past.setMilliseconds(0))
+    expect((parsedToken.exp as Date).getTime()).to.equal(past.setMilliseconds(0))
     expect(parsedToken.isValid).to.equal(false)
   })
 
@@ -111,7 +112,6 @@ describe('parseToken', () => {
     expect(fn).to.throw()
   })
 })
-
 
 describe('isTokenExpDateMatching', () => {
   it('should return false if parsedToken.exp is null', () => {
